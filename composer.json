@@ -1,0 +1,8 @@
+{
+    "require": {
+        "illuminate/view": "^5.4",
+        "leafo/scssphp": "^0.6.7",
+        "symfony/dom-crawler": "^3.2",
+        "symfony/css-selector": "^3.2"
+    }
+}

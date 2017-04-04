@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="WebServers">
+    <option name="servers">
+      <webServer id="3e7603cf-5a2b-4d52-b36b-eecbba6634fc" name="SCVN" url="http://scvn.mangoads.vn">
+        <fileTransfer host="scvn.mangoads.vn" port="22" rootFolder="/var/www/scvn/wordpress" accessType="SFTP">
+          <advancedOptions>
+            <advancedOptions dataProtectionLevel="Private" />
+          </advancedOptions>
+          <option name="port" value="22" />
+        </fileTransfer>
+      </webServer>
+    </option>
+  </component>
+</project>
