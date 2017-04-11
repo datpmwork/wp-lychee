@@ -154,7 +154,7 @@ class KingComposer{
 			"content_types" => array(),
 			"css_code" => "",
 			"animate" => "",
-			"max_width" => "1170px"
+//			"max_width" => "1170px"
 		);
 		
 		if (get_option('kc_options') !== false) {

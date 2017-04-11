@@ -835,15 +835,15 @@ class kc_front{
 			)
 		);
 		
-		if (!isset($settings['animate']) || $settings['animate'] != 'disabled')
-		{
-			$styles['kc-animate'] = array(
-				'src'     => untrailingslashit(KC_URL).'/assets/css/animate.css',
-				'deps'    => '',
-				'version' => KC_VERSION,
-				'media'   => 'all'
-			);
-		}
+//		if (!isset($settings['animate']) || $settings['animate'] != 'disabled')
+//		{
+//			$styles['kc-animate'] = array(
+//				'src'     => untrailingslashit(KC_URL).'/assets/css/animate.css',
+//				'deps'    => '',
+//				'version' => KC_VERSION,
+//				'media'   => 'all'
+//			);
+//		}
 		
 		if( $this->action == 'live-editor' ){
 			

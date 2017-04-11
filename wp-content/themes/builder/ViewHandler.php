@@ -47,6 +47,15 @@ class ViewHandler
     }
 
     public function single_template() {
-        return $this->template_include_blade(__DIR__ . "/templates/default.blade.php");
+        global $post;
+        $terms = get_the_terms( $post->ID, 'category' );
+        if ( empty( $terms ) ) $terms = array();
+        $term_list = wp_list_pluck( $terms, 'slug' );
+
+        if (in_array("mau-nha", $term_list)) {
+            return $this->template_include_blade(__DIR__ . "/templates/house.blade.php");
+        }
+
+        return $this->template_include_blade(__DIR__ . "/templates/post.blade.php");
     }
 }

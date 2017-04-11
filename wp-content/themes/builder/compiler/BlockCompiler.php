@@ -53,6 +53,10 @@ class BlockCompiler extends BladeCompiler
                 $contents = $contents . $appendCssCode;
             }
 
+            # Minified HTML
+            //TODO: Toggle Minify
+            $contents = preg_replace(array('/<!--(.*)-->/Uis',"/[[:blank:]]+/"),array('',' '),str_replace(array("\n","\r","\t"),'',$contents));
+
             $this->files->put($this->getCompiledPath($this->getPath()), $contents);
         }
     }
@@ -64,6 +68,34 @@ class BlockCompiler extends BladeCompiler
             'asset' => str_replace(".scss", "", $view),
             'hash' => preg_replace('/[0-9]+/', '', sha1($location))
         ];
+    }
+
+    public function scanBlock($path) {
+        $value = $this->files->get($path);
+        $result = "";
+        // Here we will loop through all of the tokens returned by the Zend lexer and
+        // parse each one into the corresponding valid PHP. We will then have this
+        // template as the correctly rendered PHP that can be rendered natively.
+        foreach (token_get_all($value) as $token) {
+            $result .= is_array($token) ? $this->parseScan($token) : $token;
+        }
+    }
+
+    /**
+     * Parse the tokens from the template.
+     *
+     * @param  array  $token
+     * @return string
+     */
+    protected function parseScan($token)
+    {
+        list($id, $content) = $token;
+
+        if ($id == T_INLINE_HTML) {
+            $content = $this->compileStatements($content);
+        }
+
+        return $content;
     }
 
 }
