@@ -35,6 +35,6 @@
 #### Register and echo textarea field     
     @textarea('area1', 'Area 1')
 #### Register and assign link to $button    
-    @link('link1, 'Link 1', $button')
+    @link('link1, 'Link 1', $button)
 #### Register and assign category slug to $category
     @category('category1', 'Category 1', $category)             
