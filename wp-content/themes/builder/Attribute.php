@@ -6,6 +6,7 @@
  * Time: 4:35 PM
  */
 use Illuminate\Filesystem\Filesystem;
+use Illuminate\Support\Facades\Blade;
 use Illuminate\View\Compilers\BladeCompiler;
 use Illuminate\View\Engines\CompilerEngine;
 use Illuminate\View\Engines\EngineResolver;
@@ -24,9 +25,8 @@ class Attribute
     const KING_EDITOR = 'editor';
     const KING_TEXTAREA = 'textarea';
     const KING_TEXTAREA_HTML = 'textarea_html';
-    const KING_COLOR_PICKER = 'color_picker';
-    const KING_GOOGLE_MAPS = 'google_map';
     const KING_LINK = 'link';
+    const KING_CATEGORY = 'post_taxonomy';
 
     protected $frontMode = 0;
 
@@ -41,6 +41,8 @@ class Attribute
     protected $cache = __DIR__ . '/cache/';
 
     public $factory;
+
+    public $compiler;
 
     public function __construct()
     {
@@ -59,6 +61,8 @@ class Attribute
 
         $this->factory = new Factory($resolver, $this->filesViewFinder, new \Illuminate\Events\Dispatcher());
         $this->factory->addExtension('scss', 'scss');
+
+        $this->registerWordpressDirective();
     }
 
     /**
@@ -91,8 +95,9 @@ class Attribute
         // The Compiler engine requires an instance of the CompilerInterface, which in
         // this case will be the Blade compiler, so we'll first create the compiler
         // instance to pass into the engine so it can compile the views properly.
+        $this->compiler = new BlockCompiler($this->files, $this->cache);
         $resolver->register('blade', function () {
-            return new CompilerEngine(new BlockCompiler($this->files, $this->cache));
+            return new CompilerEngine($this->compiler);
         });
     }
 
@@ -131,7 +136,7 @@ class Attribute
 
         $this->pointer["_templateLocation"] = $section_path;
         # Include Section
-        include $section_path;
+        $this->compiler->scanBlock($section_path);
 
         # Clean up Buffer
         ob_get_clean();
@@ -141,6 +146,14 @@ class Attribute
     public function set($section, $key, $value) {
         # Set value for key in section
         $this->section_queue[$section][$key]["value"] = $value;
+        # Find Type of $key
+        $type = array_filter($this->section_queue[$section], function($item) use ($key) {
+            return isset($item["key"]) && $item["key"] == $key;
+        });
+        $type = array_shift($type);
+        if ($type == null) $type = Attribute::KING_TEXT;
+        else $type = $type["type"];
+        $this->section_queue[$section][$key]["type"] = $type;
     }
 
     # Retrieve variable in section
@@ -152,16 +165,31 @@ class Attribute
         if (!$this->frontMode) {
             # Push attribute to collection
             $duplicate = array_filter($this->pointer, function ($item) use ($key) {
-                return $item['key'] == $key;
+                return isset($item['key']) && $item['key'] == $key;
             });
             if (empty($duplicate)) {
-                $this->pointer[] = ["type" => $type, "key" => $key, "value" => "", "label" => $label, "options" => $options];
+                $this->pointer[] = ["type" => $type, "key" => $key, "label" => $label, "options" => $options];
+            }
+            if ($type == Attribute::KING_LINK) {
+                return (object)["caption" => "", "href" => "", "target" => ""];
+            }
+            if ($type == Attribute::KING_CATEGORY) {
+                return 'uncategorized';
             }
             return true;
         }
         # Front Mode
         else {
             # Return Value Of $key at current section
+            if ($this->pointer[$key]["type"] == Attribute::KING_CATEGORY) {
+                $slug = str_replace("post:", "", $this->pointer[$key]["value"]);
+                return $slug;
+            }
+            if ($this->pointer[$key]["type"] == Attribute::KING_LINK) {
+                $data = explode("|", $this->pointer[$key]["value"]);
+                $button = ["href" => $data[0], "caption" => isset($data[1]) ? $data[1] : '', "target" => isset($data[2]) ? $data[2] : ''];
+                return (object)$button;
+            }
             echo $this->pointer[$key]["value"];
         }
     }
@@ -240,5 +268,102 @@ class Attribute
     public function isFrontMode()
     {
         return $this->frontMode;
+    }
+
+    private function registerWordpressDirective()
+    {
+        $compiler = $this->factory->getEngineResolver()->resolve('blade')->getCompiler();
+        $compiler->directive('wpquery', function($params) {
+            return "<?php query_posts({$params}); ?>";
+        });
+
+        $compiler->directive('loop', function() {
+            return "<?php while (have_posts()): the_post() ?>";
+        });
+
+        $compiler->directive('endloop', function() {
+            return "<?php endwhile; ?>";
+        });
+
+        $compiler->directive('haspost', function() {
+            return "<?php if (have_posts()): the_post() ?>";
+        });
+
+        $compiler->directive('endhaspost', function() {
+            return "<?php endif; ?>";
+        });
+
+        $compiler->directive('endwpquery', function() {
+            return "<?php wp_reset_query(); ?>";
+        });
+
+        $compiler->directive('front', function() {
+            return "<?php global \$attribute; if (\$attribute->isFrontMode()): ?>";
+        });
+
+        $compiler->directive('endfront', function() {
+            return "<?php endif; ?>";
+        });
+
+        $compiler->directive('resetquery', function() {
+            return "<?php wp_reset_query(); ?>";
+        });
+
+        # Attribute
+        $compiler->directive('text', function($expression) {
+            list($key, $label) = explode(',',str_replace(['(',')',"'"], '', $expression));
+            global $attribute;
+            if ($attribute->isFrontMode()) {
+                return "<?php attr('{$key}', Attribute::KING_TEXT, '{$label}') ?>";
+            } else {
+                $attribute->get($key, Attribute::KING_TEXT, $label);
+            }
+        });
+        $compiler->directive('image', function($expression) {
+            list($key, $label) = explode(',',str_replace(['(',')',"'"], '', $expression));
+            global $attribute;
+            if ($attribute->isFrontMode()) {
+                return "<?php attr('{$key}', Attribute::KING_IMAGE_URL, '{$label}') ?>";
+            } else {
+                $attribute->get($key, Attribute::KING_IMAGE_URL, $label);
+            }
+
+        });
+        $compiler->directive('editor', function($expression) {
+            list($key, $label) = explode(',',str_replace(['(',')',"'"], '', $expression));
+            global $attribute;
+            if ($attribute->isFrontMode()) {
+                return "<?php attr('{$key}', Attribute::KING_EDITOR, '{$label}') ?>";
+            } else {
+                $attribute->get($key, Attribute::KING_EDITOR, $label);
+            }
+        });
+        $compiler->directive('link', function($expression) {
+            list($key, $label, $output) = explode(',',str_replace(['(',')',"'"], '', $expression));
+            global $attribute;
+            if ($attribute->isFrontMode()) {
+                return "<?php ob_start(); attr('{$key}', Attribute::KING_LINK, '{$label}'); {trim($output)} = ob_get_clean(); ?>";
+            } else {
+                $attribute->get($key, Attribute::KING_LINK, $label);
+            }
+        });
+        $compiler->directive('textarea', function($expression) {
+            list($key, $label) = explode(',',str_replace(['(',')',"'"], '', $expression));
+            global $attribute;
+            if ($attribute->isFrontMode()) {
+                return "<?php attr('{$key}', Attribute::KING_TEXTAREA, '{$label}') ?>";
+            } else {
+                $attribute->get($key, Attribute::KING_TEXTAREA, $label);
+            }
+        });
+        $compiler->directive('category', function($expression) {
+            list($key, $label, $output) = explode(',',str_replace(['(',')',"'"], '', $expression));
+            global $attribute;
+            if ($attribute->isFrontMode()) {
+                return "<?php {trim($output)} = attr('{$key}', Attribute::KING_CATEGORY, '{$label}') ?>";
+            } else {
+                $attribute->get($key, Attribute::KING_CATEGORY, $label);
+            }
+        });
     }
 }

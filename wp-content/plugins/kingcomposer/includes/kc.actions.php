@@ -558,7 +558,7 @@ function kc_process_save ($post_id, $post) {
 
 	if (!isset($_POST['content']) || !isset($_POST['post_ID']) || !current_user_can('publish_pages'))
 		return;
-		
+
 	global $wpdb, $kc;
 	$id = $_POST['post_ID'];
 	if (isset($_POST['kc_post_meta']) && is_array($_POST['kc_post_meta'])) {
@@ -569,78 +569,78 @@ function kc_process_save ($post_id, $post) {
 	*/
 	if (isset($meta['mode']) && $meta['mode'] == 'kc')
 	{
-	
-		require_once KC_PATH.'/includes/kc.front.php';	
-		
+
+		require_once KC_PATH.'/includes/kc.front.php';
+
 		$content =  stripslashes_deep( $_POST['content'] );
 		$content_processed = '';
-		
-		if (!empty($content))
-		{
-			/*
-			* 	we don't have body class if the plugin was disabled
-			*/
-			$ext = '<style type="text/css" id="kc-basic-css">'.kc_basic_layout_css().'</style>';
-			$ext .= '<p class="kc-off-notice">'.__('Notice: You are using wrong way to display KC Content', 'kingcomposer').', <a href="http://docs.kingcomposer.com/do-shortcode-for-kc-content" target=_blank>Correct It Now</a></p>';
-			
-			$content_processed = $kc->do_shortcode ($content);
-			
-			if (empty($content_processed))
-			{
-				$content_processed = $content_processed;
-			
-				$content_processed = str_replace( 
-					array( "\n", 'body.kc-css-system' ), 
-					array( "", 'html body' ), 
-					$content_processed 
-				);
-			}
-		
-		}
-		
+
+//		if (!empty($content))
+//		{
+//			/*
+//			* 	we don't have body class if the plugin was disabled
+//			*/
+//			$ext = '<style type="text/css" id="kc-basic-css">'.kc_basic_layout_css().'</style>';
+//			$ext .= '<p class="kc-off-notice">'.__('Notice: You are using wrong way to display KC Content', 'kingcomposer').', <a href="http://docs.kingcomposer.com/do-shortcode-for-kc-content" target=_blank>Correct It Now</a></p>';
+//
+//			$content_processed = $kc->do_shortcode ($content);
+//
+//			if (empty($content_processed))
+//			{
+//				$content_processed = $content_processed;
+//
+//				$content_processed = str_replace(
+//					array( "\n", 'body.kc-css-system' ),
+//					array( "", 'html body' ),
+//					$content_processed
+//				);
+//			}
+//
+//		}
+
 		$data = array(
 			'ID' => $id,
 			'post_title'   => stripslashes( $_POST['post_title'] ),
-			'post_content' => $content_processed,
+			'post_content' => $content,
 			'post_content_filtered' => $content
 		);
 		/*
 		if (current_user_can('publish_pages'))
 			$data['post_status']  = 'publish';
 		*/
-		$wpdb->update( 
-			
-		    $wpdb->prefix.'posts', 
-		    
+		$wpdb->update(
+
+		    $wpdb->prefix.'posts',
+
 		    $data,
-		    
+
 		    array( 'ID' => $id )
 		);
-		
+
 	}
 	else{
-		
+
 		if( $_POST['action'] !== 'inline-save'){
 			$wpdb->update(
-				
+
 				$wpdb->prefix.'posts',
-				
+
 				array(
 					'ID' => $id,
 					'post_content_filtered' => ''
 				),
-				
+
 				array( 'ID' => $id )
 			);
 		}
 	}
-	
+
 }
 
 function kc_process_save_meta($id, $meta = array()) {
-	
+
 	global $kc;
-	
+
 	if (isset($kc->optimized)) {
 		$permalink = get_the_permalink($id);
 		if (!empty($permalink))
@@ -652,15 +652,15 @@ function kc_process_save_meta($id, $meta = array()) {
 
 	if (!is_array($meta))
 		$meta = array();
-		
+
 	foreach(
-		array('mode' => '', 'css' => '', 'max_width' => '', 'classes' => '', 'thumbnail' => '', 'collapsed' => '', 'optimized' => '') 
+		array('mode' => '', 'css' => '', 'max_width' => '', 'classes' => '', 'thumbnail' => '', 'collapsed' => '', 'optimized' => '')
 		as $key => $value
 	) {
 		if (!isset($meta[$key]))
 			$meta[$key] = '';
 	}
-	
+
 	if (!add_post_meta( $id, 'kc_data', $meta, true)) {
 		foreach ($meta as $key => $value) {
 			$param[$key] = $value;
@@ -668,7 +668,7 @@ function kc_process_save_meta($id, $meta = array()) {
 		update_post_meta( $id, 'kc_data', $param );
 		return $param;
 	} return $meta;
-	
+
 }
 
 /*
