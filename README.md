@@ -3,14 +3,16 @@
     - Composer Installed - https://getcomposer.org/download/
     
 # How to use
-    - Run 
-        `composer install`
-    - Add this line to in wp-load.php
-        require __DIR__.'/vendor/autoload.php'; 
+#### Install composer vendors     
+    composer install
+#### Add this line to in wp-load.php
+    require __DIR__.'/vendor/autoload.php'; 
 
 # Helpers
-    - function asset($path): Return theme assets url
-    - function attr($key, $type, $label): Register and retrieve value     
+#### Theme assets url
+    function asset($path): 
+#### Register and retrieve value    
+    function attr($key, $type, $label): Register and retrieve value     
         $key: Value Key, require unique in each block template
         $type: Defined Type of attribute
             const KING_TEXT = 'text';
