@@ -21,7 +21,8 @@ class Attribute
 {
 
     const KING_TEXT = 'text';
-    const KING_IMAGE_URL = 'attach_image_url';
+    const KING_IMAGES = 'attach_images';
+    const KING_IMAGE = 'attach_image';
     const KING_EDITOR = 'editor';
     const KING_TEXTAREA = 'textarea';
     const KING_TEXTAREA_HTML = 'textarea_html';
@@ -153,7 +154,16 @@ class Attribute
         $type = array_shift($type);
         if ($type == null) $type = Attribute::KING_TEXT;
         else $type = $type["type"];
+        # Find Options of $key
+        $options = array_filter($this->section_queue[$section], function($item) use ($key) {
+            return isset($item["key"]) && $item["key"] == $key;
+        });
+        $options = array_shift($options);
+        if ($options == null) $options = [];
+        else $options = $options["options"];
+
         $this->section_queue[$section][$key]["type"] = $type;
+        $this->section_queue[$section][$key]["options"] = $options;
     }
 
     # Retrieve variable in section
@@ -189,6 +199,21 @@ class Attribute
                 $data = explode("|", $this->pointer[$key]["value"]);
                 $button = ["href" => $data[0], "caption" => isset($data[1]) ? $data[1] : '', "target" => isset($data[2]) ? $data[2] : ''];
                 return (object)$button;
+            }
+            if ($this->pointer[$key]["type"] == Attribute::KING_IMAGE) {
+                $options = $this->pointer[$key]["options"];
+                $attachment = $this->pointer[$key]["value"];
+                echo wp_get_attachment_image_url($attachment, $options);
+                return;
+            }
+            if ($this->pointer[$key]["type"] == Attribute::KING_IMAGES) {
+                $options = $this->pointer[$key]["options"];
+                $attachments = explode(",", $this->pointer[$key]["value"]);
+                $images = [];
+                foreach ($attachments as $attachment) {
+                    $images[] = wp_get_attachment_image_url($attachment->ID, $options);
+                }
+                return $images;
             }
             echo $this->pointer[$key]["value"];
         }
@@ -320,14 +345,40 @@ class Attribute
             }
         });
         $compiler->directive('image', function($expression) {
-            list($key, $label) = explode(',',str_replace(['(',')',"'"], '', $expression));
-            global $attribute;
-            if ($attribute->isFrontMode()) {
-                return "<?php attr('{$key}', Attribute::KING_IMAGE_URL, '{$label}') ?>";
+            list($args, $options) = explode("[", $expression);
+
+            list($key, $label) = explode(',',str_replace(['(',')',"'"], '', $args));
+
+            if (!is_null($options)) {
+                eval("\$options = [" . $options. ";");
             } else {
-                $attribute->get($key, Attribute::KING_IMAGE_URL, $label);
+                $options = [];
             }
 
+            global $attribute;
+            if ($attribute->isFrontMode()) {
+                return "<?php attr('{$key}', Attribute::KING_IMAGE, '{$label}') ?>";
+            } else {
+                $attribute->get($key, Attribute::KING_IMAGE, $label, $options);
+            }
+        });
+        $compiler->directive('images', function($expression) {
+            list($args, $options) = explode("[", $expression);
+
+            list($key, $label, $output) = explode(',',str_replace(['(',')',"'"], '', $args));
+
+            if (!is_null($options)) {
+                eval("\$options = [" . $options. ";");
+            } else {
+                $options = [];
+            }
+
+            global $attribute;
+            if ($attribute->isFrontMode()) {
+                return "<?php {$output} = attr('{$key}', Attribute::KING_IMAGES, '{$label}'); ?>";
+            } else {
+                $attribute->get($key, Attribute::KING_IMAGES, $label, $options);
+            }
         });
         $compiler->directive('editor', function($expression) {
             list($key, $label) = explode(',',str_replace(['(',')',"'"], '', $expression));
@@ -342,7 +393,7 @@ class Attribute
             list($key, $label, $output) = explode(',',str_replace(['(',')',"'"], '', $expression));
             global $attribute;
             if ($attribute->isFrontMode()) {
-                return "<?php ob_start(); attr('{$key}', Attribute::KING_LINK, '{$label}'); {trim($output)} = ob_get_clean(); ?>";
+                return "<?php {$output} = attr('{$key}', Attribute::KING_LINK, '{$label}'); ?>";
             } else {
                 $attribute->get($key, Attribute::KING_LINK, $label);
             }
@@ -360,7 +411,7 @@ class Attribute
             list($key, $label, $output) = explode(',',str_replace(['(',')',"'"], '', $expression));
             global $attribute;
             if ($attribute->isFrontMode()) {
-                return "<?php {trim($output)} = attr('{$key}', Attribute::KING_CATEGORY, '{$label}') ?>";
+                return "<?php {$output} = attr('{$key}', Attribute::KING_CATEGORY, '{$label}') ?>";
             } else {
                 $attribute->get($key, Attribute::KING_CATEGORY, $label);
             }

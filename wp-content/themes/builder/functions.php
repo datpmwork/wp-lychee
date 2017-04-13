@@ -16,7 +16,7 @@ function component_path($path = '')
 
 # Initialize Attribute
 require_once('BFI_Thumb.php');
-define("BFITHUMB_UPLOAD_DIR", 'cache/');
+define("BFITHUMB_UPLOAD_DIR", 'cache');
 
 require 'helpers.php';
 require 'Attribute.php';
