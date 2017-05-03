@@ -1,4 +1,4 @@
-
+.idea/
 /wp-config.php
 vendor/
 .gitignore

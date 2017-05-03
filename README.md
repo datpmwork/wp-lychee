@@ -5,36 +5,62 @@
 # How to use
 #### Install composer vendors     
     composer install
-#### Add this line to in wp-load.php
-    require __DIR__.'/vendor/autoload.php'; 
-
 # Helpers
 #### Theme assets url
     function asset($path): 
-#### Register and retrieve value    
-    function attr($key, $type, $label): Register and retrieve value     
-        $key: Value Key, require unique in each block template
-        $type: Defined Type of attribute
-            const KING_TEXT = 'text';
-            const KING_IMAGE_URL = 'attach_image_url';
-            const KING_EDITOR = 'editor';
-            const KING_TEXTAREA = 'textarea';
-            const KING_TEXTAREA_HTML = 'textarea_html';
-            const KING_COLOR_PICKER = 'color_picker';
-            const KING_GOOGLE_MAPS = 'google_map';
-            const KING_LINK = 'link';
-            const KING_CATEGORY = 'post_taxonomy';
-        $label: Field Label
 # Blade Directives
 #### Register and echo text field
     @text('text1', 'Heading') 
 #### Register and echo image url
-    @image('image1', 'Image 1') 
+    @image('image1', 'Image 1', [300, 300, 'bfi_thumb' => true])
+    Third parameter is optional.
+#### Register and assign array of images url to $slides
+    $slides = @images('slide1', 'Slides', [300, 300, 'bfi_thumb' => true])
+    Third parameter is optional.
 #### Register and echo html editor field    
     @editor('editor1', 'Editor 1')
 #### Register and echo textarea field     
     @textarea('area1', 'Area 1')
 #### Register and assign link to $button    
-    @link('link1, 'Link 1', $button)
+    $button = @link('link1, 'Link 1')
+    $button has 3 children property.
+        - $button->caption: Anchor Caption
+        - $button->href: Anchor Link
+        - $button->target: Anchor target
+    Usage Example:
+        <a href="{{ $button->href }}" target="{{ $button->target }}">{{ $button->caption }}</a>
 #### Register and assign category slug to $category
-    @category('category1', 'Category 1', $category)             
+    $category = @category('category1', 'Category 1')
+                 
+# Wordpress Directives
+
+#### query_posts
+    @wpquery($params)
+    
+    @endwpquery
+    
+    **Example:**
+     
+    ~~~~@wpquery(["category_name" => "News"])
+    
+    @endwpquery~~~~
+    
+    Will be translated to
+        
+    ~~~~query_posts(["category_name" => "News"])
+    
+    wp_reset_query();~~~~
+#### Loop  
+    
+    @loop: while (have_posts()): the_post()
+        
+    @endloop: endwhile;
+    
+    @haspost: if (have_posts()): the_post()
+    
+    @endhaspost: endif;
+    
+    
+    
+    
+                                                     

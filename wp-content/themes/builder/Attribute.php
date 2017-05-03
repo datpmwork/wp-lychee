@@ -97,6 +97,10 @@ class Attribute
         // this case will be the Blade compiler, so we'll first create the compiler
         // instance to pass into the engine so it can compile the views properly.
         $this->compiler = new BlockCompiler($this->files, $this->cache);
+        // Create Cache Folder If there is not
+        if (!$this->files->exists($this->cache)) {
+            $this->files->makeDirectory($this->cache);
+        }
         $resolver->register('blade', function () {
             return new CompilerEngine($this->compiler);
         });
@@ -328,10 +332,6 @@ class Attribute
 
         $compiler->directive('endfront', function() {
             return "<?php endif; ?>";
-        });
-
-        $compiler->directive('resetquery', function() {
-            return "<?php wp_reset_query(); ?>";
         });
 
         # Attribute

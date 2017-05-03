@@ -22,57 +22,5 @@
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="module-library">
-      <library name="PHP Runtime" type="php">
-        <CLASSES>
-          <root url="jar://$APPLICATION_HOME_DIR$/plugins/php/lib/php.jar!/stubs/standard" />
-        </CLASSES>
-        <SOURCES>
-          <root url="jar://$APPLICATION_HOME_DIR$/plugins/php/lib/php.jar!/stubs/standard" />
-        </SOURCES>
-      </library>
-    </orderEntry>
-    <orderEntry type="module-library">
-      <library name="PHP" type="php">
-        <CLASSES>
-          <root url="file://$MODULE_DIR$/vendor/composer" />
-          <root url="file://$MODULE_DIR$/vendor/doctrine/inflector" />
-          <root url="file://$MODULE_DIR$/vendor/illuminate/container" />
-          <root url="file://$MODULE_DIR$/vendor/illuminate/contracts" />
-          <root url="file://$MODULE_DIR$/vendor/illuminate/events" />
-          <root url="file://$MODULE_DIR$/vendor/illuminate/filesystem" />
-          <root url="file://$MODULE_DIR$/vendor/illuminate/support" />
-          <root url="file://$MODULE_DIR$/vendor/illuminate/view" />
-          <root url="file://$MODULE_DIR$/vendor/leafo/scssphp" />
-          <root url="file://$MODULE_DIR$/vendor/paragonie/random_compat" />
-          <root url="file://$MODULE_DIR$/vendor/psr/log" />
-          <root url="file://$MODULE_DIR$/vendor/symfony/css-selector" />
-          <root url="file://$MODULE_DIR$/vendor/symfony/debug" />
-          <root url="file://$MODULE_DIR$/vendor/symfony/dom-crawler" />
-          <root url="file://$MODULE_DIR$/vendor/symfony/finder" />
-          <root url="file://$MODULE_DIR$/vendor/symfony/polyfill-mbstring" />
-          <root url="file://$MODULE_DIR$/vendor/symfony/var-dumper" />
-        </CLASSES>
-        <SOURCES>
-          <root url="file://$MODULE_DIR$/vendor/composer" />
-          <root url="file://$MODULE_DIR$/vendor/doctrine/inflector" />
-          <root url="file://$MODULE_DIR$/vendor/illuminate/container" />
-          <root url="file://$MODULE_DIR$/vendor/illuminate/contracts" />
-          <root url="file://$MODULE_DIR$/vendor/illuminate/events" />
-          <root url="file://$MODULE_DIR$/vendor/illuminate/filesystem" />
-          <root url="file://$MODULE_DIR$/vendor/illuminate/support" />
-          <root url="file://$MODULE_DIR$/vendor/illuminate/view" />
-          <root url="file://$MODULE_DIR$/vendor/leafo/scssphp" />
-          <root url="file://$MODULE_DIR$/vendor/paragonie/random_compat" />
-          <root url="file://$MODULE_DIR$/vendor/psr/log" />
-          <root url="file://$MODULE_DIR$/vendor/symfony/css-selector" />
-          <root url="file://$MODULE_DIR$/vendor/symfony/debug" />
-          <root url="file://$MODULE_DIR$/vendor/symfony/dom-crawler" />
-          <root url="file://$MODULE_DIR$/vendor/symfony/finder" />
-          <root url="file://$MODULE_DIR$/vendor/symfony/polyfill-mbstring" />
-          <root url="file://$MODULE_DIR$/vendor/symfony/var-dumper" />
-        </SOURCES>
-      </library>
-    </orderEntry>
   </component>
 </module>
