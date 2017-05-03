@@ -39,17 +39,18 @@
     
     @endwpquery
     
-    **Example:**
+##### Example
      
-    ```@wpquery(["category_name" => "News"])
+    @wpquery(["category_name" => "News"])
     
-    @endwpquery```
+    @endwpquery
     
-    Will be translated to
+##### Will be translated to
         
-    ```query_posts(["category_name" => "News"])
+    query_posts(["category_name" => "News"])
     
-    wp_reset_query();```
+    wp_reset_query();
+    
 #### Loop  
     
     @loop: while (have_posts()): the_post()
