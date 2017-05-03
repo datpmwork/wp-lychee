@@ -211,7 +211,7 @@ class Attribute
                 $attachments = explode(",", $this->pointer[$key]["value"]);
                 $images = [];
                 foreach ($attachments as $attachment) {
-                    $images[] = wp_get_attachment_image_url($attachment->ID, $options);
+                    $images[] = wp_get_attachment_image_url($attachment, $options);
                 }
                 return $images;
             }
